@@ -1,5 +1,6 @@
 app:
-  telegram-token: ${TELEGRAM_TOKEN} # env variable
+  telegram-token: ${TELEGRAM_TOKEN}
+  base-url: http://localhost:8081 # env variable
 
 spring:
   application:
