@@ -65,6 +65,8 @@ public class UntrackCommand implements Command {
                 userStates.put(chatId, State.START);
                 bot.execute(new SendMessage(chatId, retMessage));
             }
+            default -> {
+            }
         }
     }
 }

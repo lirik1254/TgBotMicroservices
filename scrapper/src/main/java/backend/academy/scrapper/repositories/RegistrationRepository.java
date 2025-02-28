@@ -13,7 +13,10 @@ public class RegistrationRepository {
 
     public String save(Long chatId) {
         userRegistration.put(chatId, true);
-        log.atInfo().addKeyValue(chatIdString, chatId).setMessage("Сохранён чат").log();
+        log.atInfo()
+            .addKeyValue(chatIdString, chatId)
+            .setMessage("Сохранён чат")
+            .log();
         return """
             Приветствую в боте, ты успешно зарегистрирован!
 

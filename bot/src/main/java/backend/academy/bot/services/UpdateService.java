@@ -29,7 +29,7 @@ public class UpdateService {
                     .setMessage("Отправлено обновление")
                     .log();
                 bot.execute(new SendMessage(
-                    id, String.format("Пришло уведомление по url %s\nОписание: %s", url, description)));
+                    id, String.format("Пришло уведомление по url %s%nОписание: %s", url, description)));
             });
         } catch (Exception e) {
             log.atInfo()
