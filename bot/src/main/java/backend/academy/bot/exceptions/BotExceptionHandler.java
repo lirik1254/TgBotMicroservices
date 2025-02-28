@@ -1,7 +1,7 @@
 package backend.academy.bot.exceptions;
 
-import backend.academy.bot.utils.ExceptionUtils;
 import dto.ApiErrorResponseDTO;
+import general.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

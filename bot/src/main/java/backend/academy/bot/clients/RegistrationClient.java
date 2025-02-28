@@ -6,9 +6,10 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import static backend.academy.bot.utils.LogMessages.chatIdString;
-import static backend.academy.bot.utils.LogMessages.chatRegistered;
-import static backend.academy.bot.utils.LogMessages.status;
+import static general.LogMessages.chatIdString;
+import static general.LogMessages.chatRegistered;
+import static general.LogMessages.status;
+
 
 @Component
 @Slf4j

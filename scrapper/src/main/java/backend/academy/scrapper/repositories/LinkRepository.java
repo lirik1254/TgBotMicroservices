@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import static dto.LogMessages.chatIdString;
-import static dto.LogMessages.linkString;
+import static general.LogMessages.chatIdString;
+import static general.LogMessages.linkString;
 
 
 @Repository

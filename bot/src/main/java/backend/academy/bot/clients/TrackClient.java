@@ -1,25 +1,26 @@
 package backend.academy.bot.clients;
 
 import backend.academy.bot.BotConfig;
-import backend.academy.bot.utils.LogMessages;
 import dto.ApiErrorResponseDTO;
 import dto.LinkDTO;
 import dto.ReturnLinkDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import general.LogMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import static backend.academy.bot.utils.LogMessages.chatIdString;
-import static backend.academy.bot.utils.LogMessages.error;
-import static backend.academy.bot.utils.LogMessages.githubComString;
-import static backend.academy.bot.utils.LogMessages.linkString;
-import static backend.academy.bot.utils.LogMessages.linksCommandString;
-import static backend.academy.bot.utils.LogMessages.status;
-import static backend.academy.bot.utils.LogMessages.tgChatIdString;
+import static general.LogMessages.chatIdString;
+import static general.LogMessages.error;
+import static general.LogMessages.githubComString;
+import static general.LogMessages.linkString;
+import static general.LogMessages.linksCommandString;
+import static general.LogMessages.status;
+import static general.LogMessages.tgChatIdString;
+
 
 @Component
 @Slf4j

@@ -1,14 +1,16 @@
 package backend.academy.scrapper.exceptions;
 
 import dto.ApiErrorResponseDTO;
+import general.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import static dto.LogMessages.client400;
-import static dto.LogMessages.client404;
+import static general.LogMessages.client400;
+import static general.LogMessages.client404;
+
 
 @RestControllerAdvice
 public class ScrapperExceptionHandler {

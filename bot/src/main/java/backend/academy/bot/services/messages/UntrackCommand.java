@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import static backend.academy.bot.utils.LogMessages.chatIdString;
+import static general.LogMessages.chatIdString;
 
 @Component
 @RequiredArgsConstructor

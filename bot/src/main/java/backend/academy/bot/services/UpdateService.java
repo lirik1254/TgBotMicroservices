@@ -1,13 +1,13 @@
 package backend.academy.bot.services;
 
 import backend.academy.bot.BotConfig;
-import backend.academy.bot.utils.LogMessages;
+import general.LogMessages;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import static backend.academy.bot.utils.LogMessages.chatIdString;
+import static general.LogMessages.chatIdString;
 
 @Service
 @Slf4j
