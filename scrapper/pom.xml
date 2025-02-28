@@ -139,12 +139,12 @@
         <dependency>
             <groupId>backend.academy</groupId>
             <artifactId>dto</artifactId>
-            <version>1.0</version>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>backend.academy</groupId>
             <artifactId>general</artifactId>
-            <version>1.0</version>
+            <version>${revision}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.kafka</groupId>-->
