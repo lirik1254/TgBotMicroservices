@@ -1,8 +1,10 @@
 package backend.academy.scrapper.controllers;
 
-import backend.academy.scrapper.DTO.LinkDTO;
-import backend.academy.scrapper.DTO.ReturnLinkDTO;
 import backend.academy.scrapper.services.LinkService;
+import dto.LinkDTO;
+import dto.LinkResponseDTO;
+import dto.ListLinksResponseDTO;
+import dto.RemoveLinkRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,21 +20,18 @@ public class LinkController {
     private final LinkService linkService;
 
     @PostMapping(value = "/links", produces = "application/json")
-    public String addLink(@RequestHeader("Tg-Chat-Id") Long chatId,
-                                          @RequestBody @Valid LinkDTO addRequest) {
-        linkService.addLink(chatId, addRequest);
-        return "Ссылка успешно добавлена";
+    public LinkResponseDTO addLink(@RequestHeader("Tg-Chat-Id") Long chatId, @RequestBody @Valid LinkDTO addRequest) {
+        return linkService.addLink(chatId, addRequest);
     }
 
     @DeleteMapping(value = "/links", produces = "application/json")
-    public String deleteLink(@RequestHeader("Tg-Chat-Id") Long chatId,
-                             @RequestBody @Valid LinkDTO deleteRequest) {
-        linkService.deleteLink(chatId, deleteRequest);
-        return "Ссылка успешно убрана";
+    public LinkResponseDTO deleteLink(
+            @RequestHeader("Tg-Chat-Id") Long chatId, @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
+        return linkService.deleteLink(chatId, removeLinkRequest.link());
     }
 
     @GetMapping(value = "/links", produces = "application/json")
-    public ReturnLinkDTO getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
+    public ListLinksResponseDTO getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
         return linkService.getLinks(chatId);
     }
 }

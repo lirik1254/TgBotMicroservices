@@ -1,34 +1,54 @@
 package backend.academy.bot.clients;
 
 import backend.academy.bot.BotConfig;
-import backend.academy.bot.DTO.ApiErrorResponseDTO;
-import org.springframework.http.HttpStatusCode;
+import dto.ApiErrorResponseDTO;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestClient;
+import static backend.academy.bot.utils.LogMessages.chatIdString;
+import static backend.academy.bot.utils.LogMessages.chatRegistered;
+import static backend.academy.bot.utils.LogMessages.status;
 
 @Component
+@Slf4j
 public class RegistrationClient {
-    private final WebClient webClient;
+    private final RestClient restClient;
     private final BotConfig botConfig;
 
-    public RegistrationClient(WebClient.Builder webClientBuilder, BotConfig botConfig) {
+    public RegistrationClient(BotConfig botConfig) {
         this.botConfig = botConfig;
-        this.webClient = webClientBuilder.baseUrl(botConfig.baseUrl()).build();
+        this.restClient = RestClient.create(botConfig.baseUrl());
     }
 
     public String registerUser(Long chatId) {
-        return webClient.post()
-            .uri("/tg-chat/{id}", chatId)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, response ->
-                response.bodyToMono(ApiErrorResponseDTO.class)
-                    .map(ApiErrorResponseDTO::description)
-                    .flatMap(desc -> Mono.just(new RuntimeException(desc)))
-            )
-            .bodyToMono(String.class)
-            .onErrorResume(RuntimeException.class, e -> Mono.just(e.getMessage()))
-            .block();
+        return Objects.requireNonNull(
+            restClient.post().uri("/tg-chat/{id}", chatId).exchange((request, response) -> {
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    log.atInfo()
+                        .addKeyValue(chatIdString, chatId)
+                        .setMessage(chatRegistered)
+                        .log();
+                    return chatRegistered;
+                } else {
+                    ApiErrorResponseDTO error = response.bodyTo(ApiErrorResponseDTO.class);
+                    if (error != null) {
+                        log.atError()
+                            .addKeyValue(chatIdString, chatId)
+                            .addKeyValue(status, response.getStatusCode())
+                            .addKeyValue("description", error.description())
+                            .setMessage("Не удалось зарегистрировать чат")
+                            .log();
+                        return error.description();
+                    } else {
+                        log.atError()
+                            .addKeyValue(chatIdString, chatId)
+                            .addKeyValue(status, response.getStatusCode())
+                            .setMessage("Не удалось зарегистрировать чат - Не удалось прочитать тело ответа")
+                            .log();
+                        return "Ошибка";
+                    }
+                }
+            }));
     }
-
 }

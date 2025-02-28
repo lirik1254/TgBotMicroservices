@@ -18,3 +18,20 @@
 Для работы требуется БД `PostgreSQL`. Присутствует опциональная зависимость на `Kafka`.
 
 Для дополнительной справки: [HELP.md](./HELP.md)
+
+Для запуска приложения перейдите в bot или sсrapper модуль 
+``` shell
+cd bot
+```
+
+и введите
+
+``` shell
+mvn spring-boot:run
+```
+ВАЖНО! Для работы приложения требуется определить в системных переменных:
+
+GITHUB_TOKEN - токен для доступа к api github
+SO_TOKEN_KEY - ключ stackoverflow api для доступа к api stackoverflow
+SO_ACCESS_TOKEN - токен stackoverflow api для доступа к api stackoverflow
+TELEGRAM_TOKEN - токен телеграм бота

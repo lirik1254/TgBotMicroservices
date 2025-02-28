@@ -1,21 +1,41 @@
 package backend.academy.bot.utils;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+@SuppressWarnings("RegexpSingleline")
 public class BotMessages {
-    public final static String startMessage = """
-        Приветствую в боте, ты успешно зарегистрирован!
-
-        Этот бот поможет тебе отслеживать контент.
-        Чтобы ознакомиться с функционалом бота, введи введи /help""";
-
-    public final static String helpMessage = """
+    public static final String HELP_MESSAGE =
+            """
         Доступные команды:
+
         /start - Регистрация
-        /help - подробно поясняет что делает каждая команда
-        /track - начинает уведомления по какой-то ссылке
-        /untrack - прекращает отслеживание какой-либо ссылки
-        /list - показывает список отслеживаемых ссылок (список ссылок, полученных при /track""";
 
-    public final static String wrongCommand = "Неизвестная команда";
+        /help - Подробно поясняет что делает каждая команда
 
-    public final static String wrongMessageType = "Можно вводить только текст!";
+        /track - Начинает отслеживание ссылки.
+
+        Всего доступны отслеживание 2 ссылок:
+        1 - Отслеживания изменения репозитория GitHub
+        2 - Отслеживание изменения кол-ва ответов на вопрос StackOverflow
+
+        Ссылки должны быть в формате:
+        Для GitHub - https://github.com/<owner>/<repo>
+
+        <owner> - Владелец репозитория (любые символы длины от 1 до 39)
+        <repo> - Репозиторий (любые символы длины от 1 до 39)
+
+        Для StackOverflow - https://<site>/questions/<question_id>
+
+        <question_id> - id вопроса (1-10 чисел)
+        <site> - ru.stackoverflow.com или stackoverflow.com
+
+        Для ввода тегов - любые слова/символы через пробел
+        Для ввода фильтров - фильтры в формате filter:filter
+
+        /untrack - Прекращает отслеживание какой-либо ссылки
+
+        /list - Показывает список отслеживаемых ссылок (список ссылок, полученных при /track)""";
+
+    public static final String WRONG_COMMAND = "Неизвестная команда";
 }

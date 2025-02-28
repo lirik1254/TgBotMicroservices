@@ -1,41 +1,50 @@
 package backend.academy.scrapper.clients;
 
 import backend.academy.scrapper.ScrapperConfig;
+import backend.academy.scrapper.exceptions.QuestionNotFoundException;
+import backend.academy.scrapper.utils.ConvertLinkToApiUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class StackOverflowClient {
     private final ScrapperConfig scrapperConfig;
 
-    public int getAnswersCount() {
-        WebClient webClient = WebClient.builder()
-            .baseUrl("https://api.stackexchange.com/2.3/questions/1399133/answers?site=ru.stackoverflow.com")
-            .build();
+    public int getLastUpdatedAnswersCount(String link) {
+        RestClient restClient = RestClient.create();
 
-        String response = webClient.get()
-            .uri(uriBuilder -> uriBuilder
-                .queryParam("key", scrapperConfig.stackOverflow().key())
-                .queryParam("access_token", scrapperConfig.stackOverflow().accessToken())
-                .build())
-            .retrieve()
-            .bodyToMono(String.class)
-            .block();
-
-        System.out.println(response);
+        String response = "";
+        try {
+            response = restClient
+                    .get()
+                    .uri(ConvertLinkToApiUtils.convertStackOverflowLinkToApi(link))
+                    .attribute("key", scrapperConfig.stackOverflow().key())
+                    .attribute("access_token", scrapperConfig.stackOverflow().accessToken())
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientResponseException e) {
+            log.atError()
+                    .addKeyValue("link", link)
+                    .setMessage("Не удалось найти вопрос по ссылке")
+                    .log();
+            throw new QuestionNotFoundException("Не удалось найти вопрос");
+        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonResponse = objectMapper.readTree(response);
 
             return jsonResponse.get("items").size();
         } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+            log.error("Не удалось прочитать поле 'items'");
+            throw new HttpMessageNotReadableException("Не удаётся прочитать поле 'items'");
         }
     }
 }

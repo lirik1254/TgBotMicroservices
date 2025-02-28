@@ -14,8 +14,7 @@ public class RegistrationController {
 
     @PostMapping(value = "/tg-chat/{id}", produces = "application/json")
     public String registerUser(@PathVariable Long id) {
-        registrationService.registerUser(id);
-        return "Чат зарегистрирован";
+        return registrationService.registerUser(id);
     }
 
     @DeleteMapping(value = "/tg-chat/{id}", produces = "application/json")
@@ -23,5 +22,4 @@ public class RegistrationController {
         registrationService.deleteUser(id);
         return "Чат успешно удалён";
     }
-
 }

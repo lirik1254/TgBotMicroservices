@@ -1,7 +1,7 @@
 package backend.academy.bot.controllers;
 
-import backend.academy.bot.DTO.UpdateDTO;
 import backend.academy.bot.services.UpdateService;
+import dto.UpdateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

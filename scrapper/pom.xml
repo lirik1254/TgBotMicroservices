@@ -56,10 +56,10 @@
         <!--        </dependency>-->
 
         <!-- Redis -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
+        <!--        </dependency>-->
 
         <!-- Kafka -->
         <!--        <dependency>-->
@@ -136,6 +136,11 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>backend.academy</groupId>
+            <artifactId>dto</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.kafka</groupId>-->
         <!--            <artifactId>spring-kafka-test</artifactId>-->
@@ -153,6 +158,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>backend.academy.scrapper.ScrapperApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
