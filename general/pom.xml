@@ -6,8 +6,7 @@
     <parent>
         <groupId>backend.academy</groupId>
         <artifactId>root</artifactId>
-        <version>1.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>general</artifactId>
