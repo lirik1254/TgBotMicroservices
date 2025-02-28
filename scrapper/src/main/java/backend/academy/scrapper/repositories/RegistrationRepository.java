@@ -3,6 +3,7 @@ package backend.academy.scrapper.repositories;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import static general.LogMessages.chatIdString;
 
 @Repository
 @Slf4j
@@ -12,7 +13,7 @@ public class RegistrationRepository {
 
     public String save(Long chatId) {
         userRegistration.put(chatId, true);
-        log.atInfo().addKeyValue("chatId", chatId).setMessage("Сохранён чат").log();
+        log.atInfo().addKeyValue(chatIdString, chatId).setMessage("Сохранён чат").log();
         return """
             Приветствую в боте, ты успешно зарегистрирован!
 
@@ -22,7 +23,7 @@ public class RegistrationRepository {
 
     public void delete(Long chatId) {
         userRegistration.remove(chatId);
-        log.info("Удалён чат с id {}", chatId);
+        log.atInfo().setMessage("Удалён чат").addKeyValue(chatIdString, chatId).log();
     }
 
     public boolean existById(Long id) {

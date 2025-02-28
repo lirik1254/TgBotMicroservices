@@ -30,7 +30,7 @@ public class UpdateLinkClient {
                     if (!response.getStatusCode().is2xxSuccessful()) {
                         ApiErrorResponseDTO apiErrorResponseDTO = response.bodyTo(ApiErrorResponseDTO.class);
                         if (apiErrorResponseDTO != null) {
-                            log.error(apiErrorResponseDTO.toString());
+                            log.error("Ошибка при отправке сообщения: {}", apiErrorResponseDTO);
                         } else {
                             log.atError()
                                     .addKeyValue("link", link)
