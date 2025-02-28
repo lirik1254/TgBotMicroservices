@@ -1,5 +1,8 @@
 package backend.academy.scrapper.repositories;
 
+import static general.LogMessages.chatIdString;
+import static general.LogMessages.linkString;
+
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.clients.GitHubInfoClient;
 import backend.academy.scrapper.clients.StackOverflowClient;
@@ -15,9 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import static general.LogMessages.chatIdString;
-import static general.LogMessages.linkString;
-
 
 @Repository
 @RequiredArgsConstructor
@@ -44,7 +44,7 @@ public class LinkRepository {
             githubLinkMap.put(link, localDateTime);
         } else {
             Map<String, Integer> stackOverflowMap =
-                stackOverflowLinks.computeIfAbsent(id, k -> new ConcurrentHashMap<>());
+                    stackOverflowLinks.computeIfAbsent(id, k -> new ConcurrentHashMap<>());
             int lastUpdatedAnswersCount = stackOverflowClient.getLastUpdatedAnswersCount(link);
             stackOverflowMap.put(link, lastUpdatedAnswersCount);
         }
@@ -56,10 +56,10 @@ public class LinkRepository {
         this.filters.get(id).put(link, filters);
 
         log.atInfo()
-            .addKeyValue(linkString, link)
-            .addKeyValue("chatId", id)
-            .setMessage("Сохранена ссылка")
-            .log();
+                .addKeyValue(linkString, link)
+                .addKeyValue("chatId", id)
+                .setMessage("Сохранена ссылка")
+                .log();
         return new LinkResponseDTO(id.intValue(), link, tags, filters);
     }
 
@@ -70,21 +70,21 @@ public class LinkRepository {
             tags.getOrDefault(id, new ConcurrentHashMap<>()).remove(link);
             filters.getOrDefault(id, new ConcurrentHashMap<>()).remove(link);
             log.atInfo()
-                .addKeyValue(linkString, link)
-                .addKeyValue(chatIdString, id)
-                .setMessage("Удалена ссылка")
-                .log();
+                    .addKeyValue(linkString, link)
+                    .addKeyValue(chatIdString, id)
+                    .setMessage("Удалена ссылка")
+                    .log();
             return new LinkResponseDTO(
-                id.intValue(),
-                link,
-                retTags.getOrDefault(link, new ArrayList<>()),
-                retFilters.getOrDefault(link, new ArrayList<>()));
+                    id.intValue(),
+                    link,
+                    retTags.getOrDefault(link, new ArrayList<>()),
+                    retFilters.getOrDefault(link, new ArrayList<>()));
         }
         log.atError()
-            .addKeyValue(linkString, link)
-            .addKeyValue(chatIdString, id)
-            .setMessage("Не удалось найти ссылку")
-            .log();
+                .addKeyValue(linkString, link)
+                .addKeyValue(chatIdString, id)
+                .setMessage("Не удалось найти ссылку")
+                .log();
         throw new LinkNotFoundException("Ссылка не найдена");
     }
 

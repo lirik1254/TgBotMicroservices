@@ -18,9 +18,9 @@
     <modules>
         <module>bot</module>
         <module>dto</module>
+        <module>general</module>
         <module>report</module>
         <module>scrapper</module>
-        <module>general</module>
     </modules>
 
     <properties>

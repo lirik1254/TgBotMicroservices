@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 public class ExceptionUtils {
     public static List<String> getStacktrace(Exception ex) {
         return Arrays.stream(ex.getStackTrace())
-            .map(StackTraceElement::toString)
-            .toList();
+                .map(StackTraceElement::toString)
+                .toList();
     }
 }

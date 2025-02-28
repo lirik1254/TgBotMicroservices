@@ -68,7 +68,8 @@ public class ListCommandTests extends BaseConfigure {
 
             """;
 
-        assertEquals(returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));
+        assertEquals(
+                returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));
     }
 
     @Test
@@ -124,7 +125,8 @@ public class ListCommandTests extends BaseConfigure {
             Фильтры: test:test, test2:test2
             """;
 
-        assertEquals(returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));
+        assertEquals(
+                returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));
     }
 
     @Test
