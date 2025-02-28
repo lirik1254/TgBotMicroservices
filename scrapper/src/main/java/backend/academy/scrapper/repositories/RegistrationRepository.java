@@ -1,9 +1,10 @@
 package backend.academy.scrapper.repositories;
 
+import static general.LogMessages.chatIdString;
+
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import static general.LogMessages.chatIdString;
 
 @Repository
 @Slf4j
@@ -14,9 +15,9 @@ public class RegistrationRepository {
     public String save(Long chatId) {
         userRegistration.put(chatId, true);
         log.atInfo()
-            .addKeyValue(chatIdString, chatId)
-            .setMessage("Сохранён чат")
-            .log();
+                .addKeyValue(chatIdString, chatId)
+                .setMessage("Сохранён чат")
+                .log();
         return """
             Приветствую в боте, ты успешно зарегистрирован!
 

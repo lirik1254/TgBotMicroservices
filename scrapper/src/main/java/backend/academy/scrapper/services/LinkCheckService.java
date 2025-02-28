@@ -49,7 +49,7 @@ public class LinkCheckService {
                 Integer lastSavedAnswersCount = urlEntry.getValue();
                 Integer lastUpdatedAnswersCount = stackOverflowClient.getLastUpdatedAnswersCount(urlEntry.getKey());
 
-                if (!(Objects.equals(lastSavedAnswersCount, lastUpdatedAnswersCount))) {
+                if (!Objects.equals(lastSavedAnswersCount, lastUpdatedAnswersCount)) {
                     updateLinkClient.sendUpdate(idEntry.getKey(), urlEntry.getKey());
                     urlEntry.setValue(lastUpdatedAnswersCount);
                 }
