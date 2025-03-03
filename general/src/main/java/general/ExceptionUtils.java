@@ -2,11 +2,11 @@ package general;
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 
-@UtilityClass
+@Component
 public class ExceptionUtils {
-    public static List<String> getStacktrace(Exception ex) {
+    public List<String> getStacktrace(Exception ex) {
         return Arrays.stream(ex.getStackTrace())
                 .map(StackTraceElement::toString)
                 .toList();

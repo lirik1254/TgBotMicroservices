@@ -22,24 +22,32 @@ public class UpdateLinkClient {
     }
 
     public void sendUpdate(Long chatId, String link) {
-        restClient
-                .post()
-                .uri("/updates")
-                .body(new UpdateDTO(chatId, link, "Произошло обновление!", new ArrayList<>(List.of(chatId))))
-                .exchange((request, response) -> {
-                    if (!response.getStatusCode().is2xxSuccessful()) {
-                        ApiErrorResponseDTO apiErrorResponseDTO = response.bodyTo(ApiErrorResponseDTO.class);
-                        if (apiErrorResponseDTO != null) {
-                            log.error("Ошибка при отправке сообщения: {}", apiErrorResponseDTO);
-                        } else {
-                            log.atError()
-                                    .addKeyValue("link", link)
-                                    .addKeyValue("chatId", chatId)
-                                    .setMessage("Не удалось отправить обновление по ссылке")
-                                    .log();
+        try {
+            restClient
+                    .post()
+                    .uri("/updates")
+                    .body(new UpdateDTO(chatId, link, "Произошло обновление!", new ArrayList<>(List.of(chatId))))
+                    .exchange((request, response) -> {
+                        if (!response.getStatusCode().is2xxSuccessful()) {
+                            ApiErrorResponseDTO apiErrorResponseDTO = response.bodyTo(ApiErrorResponseDTO.class);
+                            if (apiErrorResponseDTO != null) {
+                                log.error("Ошибка при отправке сообщения: {}", apiErrorResponseDTO);
+                            } else {
+                                log.atError()
+                                        .addKeyValue("link", link)
+                                        .addKeyValue("chatId", chatId)
+                                        .setMessage("Не удалось отправить обновление по ссылке")
+                                        .log();
+                            }
                         }
-                    }
-                    return Mono.empty();
-                });
+                        return Mono.empty();
+                    });
+        } catch (Exception e) {
+            log.atError()
+                    .addKeyValue("chatId", chatId)
+                    .addKeyValue("link", link)
+                    .setMessage("Произошла ошибка сервера при отправке сообщения по ссылке")
+                    .log();
+        }
     }
 }

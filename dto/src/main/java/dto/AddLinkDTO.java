@@ -3,7 +3,7 @@ package dto;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
-public record LinkDTO(@NotEmpty String link, List<String> tags, List<String> filters) {
+public record AddLinkDTO(@NotEmpty String link, List<String> tags, List<String> filters) {
     @Override
     public String toString() {
         StringBuilder defaultMessage = new StringBuilder(String.format("Ссылка: %s%n", link));

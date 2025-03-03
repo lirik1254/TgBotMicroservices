@@ -33,7 +33,8 @@ public class ListCommandTests extends BaseConfigure {
                 """
             {
                "links" : [ {
-                   "link" : "https://github.com/lirik1254/abTestRepo",
+                   "id" : 52,
+                   "url" : "https://github.com/lirik1254/abTestRepo",
                    "tags" : [ ],
                    "filters" : [ ]
                  } ],
@@ -64,9 +65,7 @@ public class ListCommandTests extends BaseConfigure {
 
             Отслеживаемые ссылки:
 
-            1) Ссылка: https://github.com/lirik1254/abTestRepo
-
-            """;
+            1) Ссылка: https://github.com/lirik1254/abTestRepo""";
 
         assertEquals(
                 returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));
@@ -79,12 +78,14 @@ public class ListCommandTests extends BaseConfigure {
                 """
             {
                "links" : [ {
-                   "link" : "https://github.com/lirik1254/abTestRepo",
+                   "id" : 52,
+                   "url" : "https://github.com/lirik1254/abTestRepo",
                    "tags" : [ "aboba" ],
                    "filters" : [ ]
                  },
                   {
-                  "link" : "https://stackoverflow.com/questions/5252525",
+                  "id" : 52,
+                  "url" : "https://stackoverflow.com/questions/5252525",
                   "tags": [ "test" ],
                    "filters": [ "test:test", "test2:test2" ]
                    }
@@ -119,11 +120,9 @@ public class ListCommandTests extends BaseConfigure {
             1) Ссылка: https://github.com/lirik1254/abTestRepo
             Теги: aboba
 
-
             2) Ссылка: https://stackoverflow.com/questions/5252525
             Теги: test
-            Фильтры: test:test, test2:test2
-            """;
+            Фильтры: test:test, test2:test2""";
 
         assertEquals(
                 returnAnswer, sentMessage.getParameters().get("text").toString().replaceAll("\r\n", "\n"));

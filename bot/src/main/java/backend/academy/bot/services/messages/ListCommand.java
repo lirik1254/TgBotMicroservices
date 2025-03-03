@@ -22,4 +22,9 @@ public class ListCommand implements Command {
                 .log();
         bot.execute(new SendMessage(chatId, trackClient.getTrackLinks(chatId)));
     }
+
+    @Override
+    public String getName() {
+        return CommandName.LIST.commandName();
+    }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 @DisplayName("Тестирование метода конвертации базовых ссылок в ссылку для запроса по api")
 public class ConvertTest {
+    ConvertLinkToApiUtils convertLinkToApiUtils = new ConvertLinkToApiUtils();
 
     @Test
     @DisplayName("Конвертирует базовую ссылку на ГХ репозиторий для запроса по api")
@@ -18,10 +19,10 @@ public class ConvertTest {
         String githubConvertedLink = "https://api.github.com/repos/lirik1254/abTestRepo";
         String githubConvertedLinkAnotherFormat = "https://api.github.com/repos/lirik1254/ANOTHER-FORMAAt-REPo";
 
-        assertEquals(githubConvertedLink, ConvertLinkToApiUtils.convertGithubLinkToApi(githubLink));
+        assertEquals(githubConvertedLink, convertLinkToApiUtils.convertGithubLinkToApi(githubLink));
         assertEquals(
                 githubConvertedLinkAnotherFormat,
-                ConvertLinkToApiUtils.convertGithubLinkToApi(githubLinkAnotherFormat));
+                convertLinkToApiUtils.convertGithubLinkToApi(githubLinkAnotherFormat));
     }
 
     @Test
@@ -32,7 +33,7 @@ public class ConvertTest {
                 "https://api.stackexchange.com/2.3/questions/52/answers?site=ru.stackoverflow.com";
 
         assertEquals(
-                convertedStackOverflowLink, ConvertLinkToApiUtils.convertStackOverflowLinkToApi(stackOverflowLink));
+                convertedStackOverflowLink, convertLinkToApiUtils.convertStackOverflowLinkToApi(stackOverflowLink));
     }
 
     @Test
@@ -43,6 +44,6 @@ public class ConvertTest {
                 "https://api.stackexchange.com/2.3/questions/52/answers?site=stackoverflow.com";
 
         assertEquals(
-                convertedStackoverflowLink, ConvertLinkToApiUtils.convertStackOverflowLinkToApi(stackOverflowLink));
+                convertedStackoverflowLink, convertLinkToApiUtils.convertStackOverflowLinkToApi(stackOverflowLink));
     }
 }

@@ -1,12 +1,11 @@
 package backend.academy.bot.services.messages;
 
-import static general.LogMessages.chatIdString;
-import static general.LogMessages.skip;
+import static general.LogMessages.CHAT_ID_STRING;
 
 import backend.academy.bot.clients.TrackClient;
-import backend.academy.bot.utils.RegexCheck;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
+import general.RegexCheck;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +22,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @SuppressWarnings("MissingSwitchDefault")
 public class TrackCommand implements Command {
+    public static String SKIP = "/skip";
+
     private final Map<Long, State> userStates = new ConcurrentHashMap<>();
     private final Map<Long, String> userUrl = new ConcurrentHashMap<>();
     private final Map<Long, Map<String, List<String>>> linkTags = new ConcurrentHashMap<>();
@@ -30,11 +31,12 @@ public class TrackCommand implements Command {
 
     private final TelegramBot bot;
     private final TrackClient trackClient;
+    private final RegexCheck regexCheck;
 
     @Override
     public void execute(Long chatId, String message) {
         log.atInfo()
-                .addKeyValue(chatIdString, chatId)
+                .addKeyValue(CHAT_ID_STRING, chatId)
                 .setMessage("Выполняется команда /track")
                 .log();
         State currentState = userStates.getOrDefault(chatId, State.START);
@@ -47,9 +49,14 @@ public class TrackCommand implements Command {
         }
     }
 
+    @Override
+    public String getName() {
+        return CommandName.TRACK.commandName();
+    }
+
     private void startHandle(Long chatId) {
         log.atInfo()
-                .addKeyValue(chatIdString, chatId)
+                .addKeyValue(CHAT_ID_STRING, chatId)
                 .setMessage("Просят ввести url")
                 .log();
         bot.execute(new SendMessage(chatId, "Введите URL для отслеживания (см. /help)"));
@@ -59,16 +66,16 @@ public class TrackCommand implements Command {
     private void waitingForUrlHandle(Long chatId, String message) {
         if (message.trim().equals("/stop")) {
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователь ввёл /stop")
                     .log();
             userStates.put(chatId, State.START);
             bot.execute(new SendMessage(chatId, "Вы вышли из меню ввода ссылки"));
             return;
         }
-        if (RegexCheck.checkApi(message)) {
+        if (regexCheck.checkApi(message)) {
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователя просят ввести теги для чата")
                     .log();
             userUrl.put(chatId, message);
@@ -76,7 +83,7 @@ public class TrackCommand implements Command {
             bot.execute(new SendMessage(chatId, "Введите теги (опционально).\nЕсли теги не нужны - введите /skip"));
         } else {
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователь некорректно ввёл ссылка для чата")
                     .log();
             bot.execute(new SendMessage(chatId, "Некорректно введена ссылка, введите заново, либо введите /stop"));
@@ -84,9 +91,9 @@ public class TrackCommand implements Command {
     }
 
     private void waitingForTags(Long chatId, String message) {
-        if (!message.equals(skip)) {
+        if (!message.equals(SKIP)) {
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователь ввёл теги")
                     .log();
             linkTags.computeIfAbsent(chatId, k -> new ConcurrentHashMap<>())
@@ -99,8 +106,8 @@ public class TrackCommand implements Command {
     }
 
     private void waitingForFilters(Long chatId, String message) {
-        boolean isSkip = message.equals(skip);
-        boolean isValidFilter = RegexCheck.checkFilter(message);
+        boolean isSkip = message.equals(SKIP);
+        boolean isValidFilter = regexCheck.checkFilter(message);
 
         if (isSkip || isValidFilter) {
             userStates.put(chatId, State.START);
@@ -119,13 +126,13 @@ public class TrackCommand implements Command {
                 urlFilters.put(userUrl.get(chatId), filters);
             }
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователь ввёл фильтры")
                     .log();
             bot.execute(new SendMessage(chatId, trackClient.trackLink(chatId, userUrl.get(chatId), tags, filters)));
         } else {
             log.atInfo()
-                    .addKeyValue(chatIdString, chatId)
+                    .addKeyValue(CHAT_ID_STRING, chatId)
                     .setMessage("Пользователь некорректно ввёл фильтры")
                     .log();
             bot.execute(new SendMessage(chatId, "Введите фильтры в формате filter:filter"));

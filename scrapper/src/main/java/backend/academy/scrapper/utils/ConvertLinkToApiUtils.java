@@ -1,8 +1,8 @@
 package backend.academy.scrapper.utils;
 
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 
-@UtilityClass
+@Component
 @SuppressWarnings("MagicNumber")
 public class ConvertLinkToApiUtils {
     public String convertGithubLinkToApi(String link) {

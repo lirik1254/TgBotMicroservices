@@ -17,15 +17,17 @@ import org.springframework.web.client.RestClientResponseException;
 @Slf4j
 public class StackOverflowClient {
     private final ScrapperConfig scrapperConfig;
+    private final ConvertLinkToApiUtils convertLinkToApiUtils;
+    private final ObjectMapper objectMapper;
+
+    RestClient restClient = RestClient.create();
 
     public int getLastUpdatedAnswersCount(String link) {
-        RestClient restClient = RestClient.create();
-
         String response = "";
         try {
             response = restClient
                     .get()
-                    .uri(ConvertLinkToApiUtils.convertStackOverflowLinkToApi(link))
+                    .uri(convertLinkToApiUtils.convertStackOverflowLinkToApi(link))
                     .attribute("key", scrapperConfig.stackOverflow().key())
                     .attribute("access_token", scrapperConfig.stackOverflow().accessToken())
                     .retrieve()
@@ -38,7 +40,6 @@ public class StackOverflowClient {
             throw new QuestionNotFoundException("Не удалось найти вопрос");
         }
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonResponse = objectMapper.readTree(response);
 
             return jsonResponse.get("items").size();

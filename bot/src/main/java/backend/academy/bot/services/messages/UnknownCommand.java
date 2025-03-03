@@ -21,4 +21,9 @@ public class UnknownCommand implements Command {
                 .log();
         bot.execute(new SendMessage(chatId, BotMessages.WRONG_COMMAND));
     }
+
+    @Override
+    public String getName() {
+        return "";
+    }
 }

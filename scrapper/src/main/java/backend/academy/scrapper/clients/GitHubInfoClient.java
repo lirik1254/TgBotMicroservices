@@ -19,15 +19,18 @@ import org.springframework.web.client.RestClientResponseException;
 @Slf4j
 public class GitHubInfoClient {
     private final ScrapperConfig scrapperConfig;
+    private final ConvertLinkToApiUtils convertLinkToApiUtils;
+    private final ObjectMapper objectMapper;
+
+    RestClient restClient = RestClient.create();
 
     public LocalDateTime getLastUpdatedTime(String link)
             throws RepositoryNotFoundException, HttpMessageNotReadableException {
-        RestClient restClient = RestClient.create();
         String response = "";
         try {
             response = restClient
                     .get()
-                    .uri(ConvertLinkToApiUtils.convertGithubLinkToApi(link))
+                    .uri(convertLinkToApiUtils.convertGithubLinkToApi(link))
                     .header("Accept", "application/vnd.github+json")
                     .header("Authorization", "Bearer" + scrapperConfig.githubToken())
                     .retrieve()
@@ -41,8 +44,6 @@ public class GitHubInfoClient {
         }
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
             JsonNode jsonResponse = objectMapper.readTree(response);
             return LocalDateTime.parse(
                     jsonResponse.get("updated_at").toString().replace("\"", "").replace("Z", ""));

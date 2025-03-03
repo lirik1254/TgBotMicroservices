@@ -22,4 +22,9 @@ public class StartCommand implements Command {
                 .log();
         bot.execute(new SendMessage(chatId, registrationClient.registerUser(chatId)));
     }
+
+    @Override
+    public String getName() {
+        return CommandName.START.commandName();
+    }
 }

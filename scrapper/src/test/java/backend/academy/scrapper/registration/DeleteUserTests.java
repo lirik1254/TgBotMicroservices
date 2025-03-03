@@ -2,7 +2,6 @@ package backend.academy.scrapper.registration;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +31,7 @@ public class DeleteUserTests {
         assertTrue(registrationRepository.existById(52L));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/tg-chat/52").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("Чат успешно удалён"));
+                .andExpect(status().isOk());
 
         assertFalse(registrationRepository.existById(52L));
     }

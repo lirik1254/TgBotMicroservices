@@ -1,6 +1,6 @@
 package backend.academy.bot.services.messages;
 
-import static general.LogMessages.chatIdString;
+import static general.LogMessages.CHAT_ID_STRING;
 
 import backend.academy.bot.clients.TrackClient;
 import com.pengrad.telegrambot.TelegramBot;
@@ -27,13 +27,13 @@ public class UntrackCommand implements Command {
     public void execute(Long chatId, String message) {
         State currentState = userStates.getOrDefault(chatId, State.START);
         log.atInfo()
-                .addKeyValue(chatIdString, chatId)
+                .addKeyValue(CHAT_ID_STRING, chatId)
                 .setMessage("Выполняется команда /untrack")
                 .log();
         switch (currentState) {
             case START -> {
                 log.atInfo()
-                        .addKeyValue(chatIdString, chatId)
+                        .addKeyValue(CHAT_ID_STRING, chatId)
                         .setMessage("Пользователя просят ввести url для прекращения отслеживания")
                         .log();
                 bot.execute(new SendMessage(chatId, "Введите URL для прекращения отслеживания (см. /help)"));
@@ -42,7 +42,7 @@ public class UntrackCommand implements Command {
             case WAITING_FOR_URL -> {
                 if (message.trim().equals("/stop")) {
                     log.atInfo()
-                            .addKeyValue(chatIdString, chatId)
+                            .addKeyValue(CHAT_ID_STRING, chatId)
                             .setMessage("Пользователь вышел из меню ввода ссылки для прекращения отслеживания")
                             .log();
                     userStates.put(chatId, State.START);
@@ -59,7 +59,7 @@ public class UntrackCommand implements Command {
                     return;
                 }
                 log.atInfo()
-                        .addKeyValue(chatIdString, chatId)
+                        .addKeyValue(CHAT_ID_STRING, chatId)
                         .addKeyValue("userMessage", message)
                         .setMessage("Отслеживание ссылки прекращено")
                         .log();
@@ -68,5 +68,10 @@ public class UntrackCommand implements Command {
             }
             default -> {}
         }
+    }
+
+    @Override
+    public String getName() {
+        return CommandName.UNTRACK.commandName();
     }
 }

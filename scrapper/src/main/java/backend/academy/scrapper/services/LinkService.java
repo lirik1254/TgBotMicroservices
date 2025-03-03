@@ -1,16 +1,14 @@
 package backend.academy.scrapper.services;
 
-import backend.academy.scrapper.clients.GitHubInfoClient;
-import backend.academy.scrapper.clients.StackOverflowClient;
+import backend.academy.scrapper.DTO.Link;
 import backend.academy.scrapper.repositories.LinkRepository;
 import backend.academy.scrapper.utils.LinkType;
-import dto.LinkDTO;
+import dto.AddLinkDTO;
 import dto.LinkResponseDTO;
 import dto.ListLinksResponseDTO;
-import java.time.LocalDateTime;
+import general.RegexCheck;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +16,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LinkService {
     private final LinkRepository linkRepository;
-    private final GitHubInfoClient gitHubInfoClient;
-    private final StackOverflowClient stackOverflowClient;
+    private final RegexCheck regexCheck;
 
-    public LinkResponseDTO addLink(Long chatId, LinkDTO addRequest) {
+    public LinkResponseDTO addLink(Long chatId, AddLinkDTO addRequest) {
         String link = addRequest.link();
-        LinkType linkType = null;
-        if (link.contains("github.com")) {
-            linkType = LinkType.GITHUB;
-        } else {
-            linkType = LinkType.STACKOVERFLOW;
-        }
+        LinkType linkType = regexCheck.isGithub(link) ? LinkType.GITHUB : LinkType.STACKOVERFLOW;
         return linkRepository.save(chatId, addRequest.link(), addRequest.tags(), addRequest.filters(), linkType);
     }
 
@@ -37,25 +29,13 @@ public class LinkService {
     }
 
     public ListLinksResponseDTO getLinks(Long chatId) {
-        Map<String, LocalDateTime> githubLinks =
-                linkRepository.getAllGithubLinks().get(chatId);
-        Map<String, Integer> stackOverflowLinks =
-                linkRepository.getAllStackOverflowLinks().get(chatId);
-        Map<String, List<String>> userTags = linkRepository.getAllTags().get(chatId);
-        Map<String, List<String>> userFilters = linkRepository.getAllFilters().get(chatId);
+        List<Link> links = linkRepository.links();
+        List<LinkResponseDTO> linkResponseDTOS = new ArrayList<>();
 
-        ArrayList<LinkDTO> linkDTOS = new ArrayList<>();
-
-        if (githubLinks != null) {
-            githubLinks.forEach(
-                    (link, value) -> linkDTOS.add(new LinkDTO(link, userTags.get(link), userFilters.get(link))));
-        }
-
-        if (stackOverflowLinks != null) {
-            stackOverflowLinks.forEach(
-                    (link, value) -> linkDTOS.add(new LinkDTO(link, userTags.get(link), userFilters.get(link))));
-        }
-
-        return new ListLinksResponseDTO(linkDTOS, linkDTOS.size());
+        links.stream()
+                .filter(s -> s.userId().equals(chatId))
+                .forEach(s -> linkResponseDTOS.add(
+                        new LinkResponseDTO(Math.toIntExact(s.userId()), s.url(), s.tags(), s.filters())));
+        return new ListLinksResponseDTO(linkResponseDTOS, linkResponseDTOS.size());
     }
 }

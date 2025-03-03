@@ -2,11 +2,12 @@ package backend.academy.bot.parse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import backend.academy.bot.utils.RegexCheck;
+import general.RegexCheck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class FilterParseTest {
+    private RegexCheck regexCheck = new RegexCheck();
 
     @Test
     @DisplayName("Тестирует парсинг фильтров")
@@ -19,12 +20,12 @@ public class FilterParseTest {
         String oneCorrectFilter = "filter:filter";
         String moreThanOneCorrectFilter = "filter:filter correctfilter:FILTER52";
 
-        assertFalse(RegexCheck.checkFilter(filterWithoutColon));
-        assertFalse(RegexCheck.checkFilter(filterWithSpaces));
-        assertFalse(RegexCheck.checkFilter(moreThanOneFilterNoColon));
-        assertFalse(RegexCheck.checkFilter(filtersWithComma));
+        assertFalse(regexCheck.checkFilter(filterWithoutColon));
+        assertFalse(regexCheck.checkFilter(filterWithSpaces));
+        assertFalse(regexCheck.checkFilter(moreThanOneFilterNoColon));
+        assertFalse(regexCheck.checkFilter(filtersWithComma));
 
-        assertTrue(RegexCheck.checkFilter(oneCorrectFilter));
-        assertTrue(RegexCheck.checkFilter(moreThanOneCorrectFilter));
+        assertTrue(regexCheck.checkFilter(oneCorrectFilter));
+        assertTrue(regexCheck.checkFilter(moreThanOneCorrectFilter));
     }
 }

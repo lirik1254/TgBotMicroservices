@@ -2,12 +2,13 @@ package backend.academy.bot.parse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import backend.academy.bot.utils.RegexCheck;
+import general.RegexCheck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Тестирует парсинг github и stackoverflow ссылок")
 public class LinkParseTests {
+    private final RegexCheck regexCheck = new RegexCheck();
 
     @Test
     @DisplayName("Тестирует парсинг github ссылок")
@@ -25,16 +26,16 @@ public class LinkParseTests {
         String correctGithubRepo = "https://github.com/lirik1254/abTestRepo";
         String correctGithubRepoWithDash = "https://github.com/lirik1254/ab-Test-REPO";
 
-        assertFalse(RegexCheck.checkApi(noHttpsGithubLink));
-        assertFalse(RegexCheck.checkApi(noGithubLink));
-        assertFalse(RegexCheck.checkApi(moreThan39CharactersNickName));
-        assertFalse(RegexCheck.checkApi(moreThan39CharactersRepoName));
-        assertFalse(RegexCheck.checkApi(someBadLettersBefore));
-        assertFalse(RegexCheck.checkApi(someBadLettersAfter));
-        assertFalse(RegexCheck.checkApi(moreThanOneSlash));
+        assertFalse(regexCheck.checkApi(noHttpsGithubLink));
+        assertFalse(regexCheck.checkApi(noGithubLink));
+        assertFalse(regexCheck.checkApi(moreThan39CharactersNickName));
+        assertFalse(regexCheck.checkApi(moreThan39CharactersRepoName));
+        assertFalse(regexCheck.checkApi(someBadLettersBefore));
+        assertFalse(regexCheck.checkApi(someBadLettersAfter));
+        assertFalse(regexCheck.checkApi(moreThanOneSlash));
 
-        assertTrue(RegexCheck.checkApi(correctGithubRepo));
-        assertTrue(RegexCheck.checkApi(correctGithubRepoWithDash));
+        assertTrue(regexCheck.checkApi(correctGithubRepo));
+        assertTrue(regexCheck.checkApi(correctGithubRepoWithDash));
     }
 
     @Test
@@ -49,13 +50,13 @@ public class LinkParseTests {
         String correctRuLink = "https://ru.stackoverflow.com/questions/52";
         String correctGeneralLink = "https://stackoverflow.com/questions/52";
 
-        assertFalse(RegexCheck.checkApi(noHttpsStackOverflowLink));
-        assertFalse(RegexCheck.checkApi(noValidQuestionIdSizeLink));
-        assertFalse(RegexCheck.checkApi(noValidSiteStackOverflowLink));
-        assertFalse(RegexCheck.checkApi(noValidQuestionStructureLink));
-        assertFalse(RegexCheck.checkApi(moreThanOneSlash));
+        assertFalse(regexCheck.checkApi(noHttpsStackOverflowLink));
+        assertFalse(regexCheck.checkApi(noValidQuestionIdSizeLink));
+        assertFalse(regexCheck.checkApi(noValidSiteStackOverflowLink));
+        assertFalse(regexCheck.checkApi(noValidQuestionStructureLink));
+        assertFalse(regexCheck.checkApi(moreThanOneSlash));
 
-        assertTrue(RegexCheck.checkApi(correctRuLink));
-        assertTrue(RegexCheck.checkApi(correctGeneralLink));
+        assertTrue(regexCheck.checkApi(correctRuLink));
+        assertTrue(regexCheck.checkApi(correctGeneralLink));
     }
 }

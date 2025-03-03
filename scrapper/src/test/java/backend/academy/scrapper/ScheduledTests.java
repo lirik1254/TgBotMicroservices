@@ -11,20 +11,23 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.DTO.GithubLink;
+import backend.academy.scrapper.DTO.Link;
 import backend.academy.scrapper.clients.GitHubInfoClient;
 import backend.academy.scrapper.clients.UpdateLinkClient;
 import backend.academy.scrapper.repositories.LinkRepository;
 import backend.academy.scrapper.repositories.RegistrationRepository;
+import backend.academy.scrapper.services.GithubUpdateChecker;
 import backend.academy.scrapper.services.LinkCheckService;
+import backend.academy.scrapper.services.StackOverflowUpdateChecker;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import dto.LinkDTO;
+import dto.AddLinkDTO;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,6 +55,12 @@ public class ScheduledTests {
 
     @Autowired
     public LinkCheckService linkCheckService;
+
+    @Autowired
+    public GithubUpdateChecker githubUpdateChecker;
+
+    @Autowired
+    public StackOverflowUpdateChecker stackOverflowUpdateChecker;
 
     @MockitoBean
     public UpdateLinkClient updateLinkClient;
@@ -89,11 +98,11 @@ public class ScheduledTests {
         List<String> tags = List.of("tag1", "tag2");
         List<String> filters = List.of("filter1");
 
-        LinkDTO firstRequest = new LinkDTO(firstUserGithubLink, tags, filters);
-        LinkDTO secondRequest = new LinkDTO(secondUserGithubLink, tags, filters);
+        AddLinkDTO firstRequest = new AddLinkDTO(firstUserGithubLink, tags, filters);
+        AddLinkDTO secondRequest = new AddLinkDTO(secondUserGithubLink, tags, filters);
 
         LocalDateTime returnDateTime = LocalDateTime.of(2020, 1, 10, 10, 10);
-        when(gitHubInfoClient.getLastUpdatedTime(any())).thenReturn(returnDateTime);
+        when(gitHubInfoClient.getLastUpdatedTime(any())).thenReturn(LocalDateTime.now());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/links") // Добавляем 1 github ссылку для пользователя с id 123
                 .header("Tg-Chat-Id", 123)
@@ -107,16 +116,14 @@ public class ScheduledTests {
 
         registrationRepository.save(5050L);
 
-        Map<String, LocalDateTime> firstLinkMap = new HashMap<>(Map.of(firstUserGithubLink, LocalDateTime.now()));
-        Map<String, LocalDateTime> secondLinkMap = new HashMap<>(Map.of(secondUserGithubLink, LocalDateTime.now()));
+        ReflectionTestUtils.setField(
+                linkRepository,
+                "links",
+                new ArrayList<Link>(List.of(
+                        new GithubLink(123L, firstUserGithubLink, tags, filters, returnDateTime),
+                        new GithubLink(5252L, secondUserGithubLink, tags, filters, returnDateTime))));
 
-        Map<Long, Map<String, LocalDateTime>> userMap = new HashMap<>();
-        userMap.put(123L, firstLinkMap);
-        userMap.put(5252L, secondLinkMap);
-
-        ReflectionTestUtils.setField(linkRepository, "githubLinks", userMap);
-
-        linkCheckService.checkForGithubUpdates();
+        linkCheckService.scheduleAllChecks();
 
         // 1 пользователю отправляется обновление с 1 ссылкой
         Mockito.verify(updateLinkClient).sendUpdate(123L, firstUserGithubLink);

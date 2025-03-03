@@ -1,18 +1,13 @@
 package backend.academy.bot.clients;
 
-import static general.LogMessages.chatIdString;
-import static general.LogMessages.error;
-import static general.LogMessages.githubComString;
-import static general.LogMessages.linkString;
-import static general.LogMessages.linksCommandString;
-import static general.LogMessages.status;
-import static general.LogMessages.tgChatIdString;
+import static general.LogMessages.CHAT_ID_STRING;
+import static general.LogMessages.LINK_STRING;
+import static general.LogMessages.STATUS;
 
 import backend.academy.bot.BotConfig;
+import dto.AddLinkDTO;
 import dto.ApiErrorResponseDTO;
-import dto.LinkDTO;
-import dto.ReturnLinkDTO;
-import general.LogMessages;
+import dto.ListLinksResponseDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +20,11 @@ import org.springframework.web.client.RestClient;
 @Component
 @Slf4j
 public class TrackClient {
+    public static final String ERROR = "Ошибка";
+    public static final String TG_CHAT_ID_STRING = "Tg-Chat-Id";
+    public static final String LINKS_COMMAND_STRING = "/links";
+    public static final String GITHUB_COM_STRING = "github.com";
+
     private final RestClient restClient;
     private final BotConfig botConfig;
 
@@ -34,133 +34,145 @@ public class TrackClient {
     }
 
     public String trackLink(Long chatId, String link, List<String> tags, List<String> filters) {
-        return restClient
-                .post()
-                .uri(linksCommandString)
-                .header(tgChatIdString, chatId.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new LinkDTO(link, tags, filters))
-                .exchange((request, response) -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        if (link.contains(githubComString)) {
-                            log.atInfo()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .setMessage("Изменения в репозитории у чата теперь отслеживаются")
-                                    .log();
-                            return "Изменения в репозитории теперь отслеживаются";
+        try {
+            return restClient
+                    .post()
+                    .uri(LINKS_COMMAND_STRING)
+                    .header(TG_CHAT_ID_STRING, chatId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new AddLinkDTO(link, tags, filters))
+                    .exchange((request, response) -> {
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            if (link.contains(GITHUB_COM_STRING)) {
+                                log.atInfo()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .setMessage("Изменения в репозитории у чата теперь отслеживаются")
+                                        .log();
+                                return "Изменения в репозитории теперь отслеживаются";
+                            } else {
+                                log.atInfo()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .setMessage("Новые ответы на вопрос у чата теперь отслеживаются")
+                                        .log();
+                                return "Новые ответы на вопрос теперь отслеживаются";
+                            }
                         } else {
-                            log.atInfo()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .setMessage("Новые ответы на вопрос у чата теперь отслеживаются")
+                            log.atError()
+                                    .addKeyValue(LINK_STRING, link)
+                                    .addKeyValue(CHAT_ID_STRING, chatId)
+                                    .setMessage("Произошла ошибка при отслеживании ссылки")
                                     .log();
-                            return "Новые ответы на вопрос теперь отслеживаются";
+                            return Optional.ofNullable(response.bodyTo(ApiErrorResponseDTO.class))
+                                    .map(ApiErrorResponseDTO::description)
+                                    .orElse(ERROR);
                         }
-                    } else {
-                        log.atError()
-                                .addKeyValue(linkString, link)
-                                .addKeyValue(chatIdString, chatId)
-                                .setMessage("Произошла ошибка при отслеживании ссылки")
-                                .log();
-                        return Optional.ofNullable(response.bodyTo(ApiErrorResponseDTO.class))
-                                .map(ApiErrorResponseDTO::description)
-                                .orElse(error);
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            return "Ошибка";
+        }
     }
 
     public String unTrackLink(Long chatId, String link) {
-        return restClient
-                .method(HttpMethod.DELETE)
-                .uri(linksCommandString)
-                .header(tgChatIdString, chatId.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of(linkString, link))
-                .exchange((request, response) -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        if (link.contains(githubComString)) {
-                            log.atInfo()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .setMessage("Изменения в репозитории у чата теперь больше не отслеживаются")
-                                    .log();
-                            return "Изменения в репозитории больше не отслеживается";
+        try {
+            return restClient
+                    .method(HttpMethod.DELETE)
+                    .uri(LINKS_COMMAND_STRING)
+                    .header(TG_CHAT_ID_STRING, chatId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(LINK_STRING, link))
+                    .exchange((request, response) -> {
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            if (link.contains(GITHUB_COM_STRING)) {
+                                log.atInfo()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .setMessage("Изменения в репозитории у чата теперь больше не отслеживаются")
+                                        .log();
+                                return "Изменения в репозитории больше не отслеживается";
+                            } else {
+                                log.atInfo()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .setMessage("Изменения в вопросе у чата больше не отслеживаются")
+                                        .log();
+                                return "Изменения в вопросе больше не отслеживаются";
+                            }
                         } else {
-                            log.atInfo()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .setMessage("Изменения в вопросе у чата больше не отслеживаются")
-                                    .log();
-                            return "Изменения в вопросе больше не отслеживаются";
+                            ApiErrorResponseDTO error = response.bodyTo(ApiErrorResponseDTO.class);
+                            if (error != null) {
+                                log.atError()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .addKeyValue(STATUS, response.getStatusCode())
+                                        .addKeyValue("error", error.description())
+                                        .setMessage("Не удалось прекратить отслеживание ссылки")
+                                        .log();
+                                return error.description();
+                            } else {
+                                log.atError()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(LINK_STRING, link)
+                                        .addKeyValue(STATUS, response.getStatusCode())
+                                        .setMessage(
+                                                "Не удалось прекратить отслеживание ссылки: Тело ответа не удалось прочитать")
+                                        .log();
+                                return ERROR;
+                            }
                         }
-                    } else {
-                        ApiErrorResponseDTO error = response.bodyTo(ApiErrorResponseDTO.class);
-                        if (error != null) {
-                            log.atError()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .addKeyValue(status, response.getStatusCode())
-                                    .addKeyValue("error", error.description())
-                                    .setMessage("Не удалось прекратить отслеживание ссылки")
-                                    .log();
-                            return error.description();
-                        } else {
-                            log.atError()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(linkString, link)
-                                    .addKeyValue(status, response.getStatusCode())
-                                    .setMessage(
-                                            "Не удалось прекратить отслеживание ссылки: Тело ответа не удалось прочитать")
-                                    .log();
-                            return LogMessages.error;
-                        }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            return "Ошибка";
+        }
     }
 
     public String getTrackLinks(Long chatId) {
-        return restClient
-                .get()
-                .uri(linksCommandString)
-                .header(tgChatIdString, String.valueOf(chatId))
-                .exchange((request, response) -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        ReturnLinkDTO dto = response.bodyTo(ReturnLinkDTO.class);
-                        if (dto != null) {
-                            String result = dto.toString();
-                            log.atInfo()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue("links", result)
-                                    .setMessage("Успешный ответ от /links")
-                                    .log();
-                            return result;
+        try {
+            return restClient
+                    .get()
+                    .uri(LINKS_COMMAND_STRING)
+                    .header(TG_CHAT_ID_STRING, String.valueOf(chatId))
+                    .exchange((request, response) -> {
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            ListLinksResponseDTO dto = response.bodyTo(ListLinksResponseDTO.class);
+                            if (dto != null) {
+                                String result = dto.toString();
+                                log.atInfo()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue("links", result)
+                                        .setMessage("Успешный ответ от /links")
+                                        .log();
+                                return result;
+                            } else {
+                                log.atWarn()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .setMessage("Успешный ответ от /links, но тело пустое или невалидное")
+                                        .log();
+                                return "Не удалось получить список отслеживаемых ссылок";
+                            }
                         } else {
-                            log.atWarn()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .setMessage("Успешный ответ от /links, но тело пустое или невалидное")
-                                    .log();
-                            return "Не удалось получить список отслеживаемых ссылок";
+                            ApiErrorResponseDTO error = response.bodyTo(ApiErrorResponseDTO.class);
+                            if (error != null) {
+                                log.atError()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(STATUS, response.getStatusCode())
+                                        .addKeyValue("description", error.description())
+                                        .setMessage("Ошибка при запросе /links")
+                                        .log();
+                                return error.description();
+                            } else {
+                                log.atError()
+                                        .addKeyValue(CHAT_ID_STRING, chatId)
+                                        .addKeyValue(STATUS, response.getStatusCode())
+                                        .setMessage("Ошибка при запросе /links, тело не удалось прочитать")
+                                        .log();
+                                return "Произошла ошибка";
+                            }
                         }
-                    } else {
-                        ApiErrorResponseDTO error = response.bodyTo(ApiErrorResponseDTO.class);
-                        if (error != null) {
-                            log.atError()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(status, response.getStatusCode())
-                                    .addKeyValue("description", error.description())
-                                    .setMessage("Ошибка при запросе /links")
-                                    .log();
-                            return error.description();
-                        } else {
-                            log.atError()
-                                    .addKeyValue(chatIdString, chatId)
-                                    .addKeyValue(status, response.getStatusCode())
-                                    .setMessage("Ошибка при запросе /links, тело не удалось прочитать")
-                                    .log();
-                            return "Произошла ошибка";
-                        }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            return "Ошибка";
+        }
     }
 }

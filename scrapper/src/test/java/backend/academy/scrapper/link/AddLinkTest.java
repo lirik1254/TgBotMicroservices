@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -16,7 +16,7 @@ import backend.academy.scrapper.clients.GitHubInfoClient;
 import backend.academy.scrapper.clients.StackOverflowClient;
 import backend.academy.scrapper.repositories.LinkRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dto.LinkDTO;
+import dto.AddLinkDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +53,7 @@ public class AddLinkTest {
         List<String> filters = List.of("filter1");
 
         String githubLink = "https://github.com/lirik1254/abTestRepo";
-        LinkDTO request = new LinkDTO(githubLink, tags, filters);
+        AddLinkDTO request = new AddLinkDTO(githubLink, tags, filters);
 
         LocalDateTime returnDateTime = LocalDateTime.of(2020, 1, 10, 10, 10);
         when(gitHubInfoClient.getLastUpdatedTime("https://github.com/lirik1254/abTestRepo"))
@@ -70,16 +70,13 @@ public class AddLinkTest {
                 .andExpect(jsonPath("$.tags", hasItems("tag1", "tag2")))
                 .andExpect(jsonPath("$.filters", hasItems("filter1")));
 
-        assertTrue(linkRepository.getAllGithubLinks().get(123L).containsKey(githubLink));
-        assertEquals(linkRepository.getAllGithubLinks().get(123L).get(githubLink), returnDateTime);
-
-        assertTrue(linkRepository.getAllTags().containsKey(123L));
-        assertTrue(linkRepository.getAllTags().get(123L).containsKey(githubLink));
-        assertEquals(linkRepository.getAllTags().get(123L).get(githubLink), tags);
-
-        assertTrue(linkRepository.getAllFilters().containsKey(123L));
-        assertTrue(linkRepository.getAllFilters().get(123L).containsKey(githubLink));
-        assertEquals(linkRepository.getAllFilters().get(123L).get(githubLink), filters);
+        assertFalse(linkRepository.getGithubLinks().stream()
+                .filter(s -> s.userId().equals(123L)
+                        && s.lastUpdate().equals(returnDateTime)
+                        && s.tags().equals(tags)
+                        && s.filters().equals(filters))
+                .toList()
+                .isEmpty());
     }
 
     @Test
@@ -89,7 +86,7 @@ public class AddLinkTest {
         List<String> filters = List.of("filter1");
 
         String githubLink = "https://stackoverflow.com/questions/34534534";
-        LinkDTO request = new LinkDTO(githubLink, tags, filters);
+        AddLinkDTO request = new AddLinkDTO(githubLink, tags, filters);
 
         when(stackOverflowClient.getLastUpdatedAnswersCount("https://stackoverflow.com/questions/34534534"))
                 .thenReturn(52);
@@ -105,16 +102,13 @@ public class AddLinkTest {
                 .andExpect(jsonPath("$.tags", hasItems("tag1", "tag2")))
                 .andExpect(jsonPath("$.filters", hasItems("filter1")));
 
-        assertTrue(linkRepository.getAllStackOverflowLinks().get(123L).containsKey(githubLink));
-        assertEquals(52, linkRepository.getAllStackOverflowLinks().get(123L).get(githubLink));
-
-        assertTrue(linkRepository.getAllTags().containsKey(123L));
-        assertTrue(linkRepository.getAllTags().get(123L).containsKey(githubLink));
-        assertEquals(linkRepository.getAllTags().get(123L).get(githubLink), tags);
-
-        assertTrue(linkRepository.getAllFilters().containsKey(123L));
-        assertTrue(linkRepository.getAllFilters().get(123L).containsKey(githubLink));
-        assertEquals(linkRepository.getAllFilters().get(123L).get(githubLink), filters);
+        assertFalse(linkRepository.getStackOverflowLinks().stream()
+                .filter(s -> s.userId().equals(123L)
+                        && s.answerCount().equals(52)
+                        && s.tags().equals(tags)
+                        && s.filters().equals(filters))
+                .toList()
+                .isEmpty());
     }
 
     @Test
@@ -124,7 +118,7 @@ public class AddLinkTest {
         List<String> filters = List.of("filter1");
 
         String stackOverflowLink = "https://stackoverflow.com/questions/34534534";
-        LinkDTO request = new LinkDTO(stackOverflowLink, tags, filters);
+        AddLinkDTO request = new AddLinkDTO(stackOverflowLink, tags, filters);
 
         when(stackOverflowClient.getLastUpdatedAnswersCount("https://stackoverflow.com/questions/34534534"))
                 .thenReturn(52);
@@ -139,9 +133,15 @@ public class AddLinkTest {
                 .andExpect(jsonPath("$.tags", hasItems("tag1", "tag2")))
                 .andExpect(jsonPath("$.filters", hasItems("filter1")));
 
-        assertEquals(linkRepository.getAllTags().get(123L).get(stackOverflowLink), tags);
+        assertEquals(
+                linkRepository.links().stream()
+                        .filter(s -> s.userId().equals(123L) && s.url().equals(stackOverflowLink))
+                        .toList()
+                        .getFirst()
+                        .tags(),
+                tags);
 
-        request = new LinkDTO(stackOverflowLink, List.of("52"), filters);
+        request = new AddLinkDTO(stackOverflowLink, List.of("52"), filters);
 
         mockMvc.perform(post("/links")
                         .header("Tg-Chat-Id", 123)
@@ -153,7 +153,13 @@ public class AddLinkTest {
                 .andExpect(jsonPath("$.tags", hasItems("52")))
                 .andExpect(jsonPath("$.filters", hasItems("filter1")));
 
-        assertEquals(linkRepository.getAllTags().get(123L).get(stackOverflowLink), List.of("52"));
+        assertEquals(
+                linkRepository.links().stream()
+                        .filter(s -> s.userId().equals(123L) && s.url().equals(stackOverflowLink))
+                        .toList()
+                        .getFirst()
+                        .tags(),
+                List.of("52"));
     }
 
     @Test

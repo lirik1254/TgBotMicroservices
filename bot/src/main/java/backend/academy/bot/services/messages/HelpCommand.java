@@ -21,4 +21,9 @@ public class HelpCommand implements Command {
                 .log();
         bot.execute(new SendMessage(chatId, BotMessages.HELP_MESSAGE));
     }
+
+    @Override
+    public String getName() {
+        return CommandName.HELP.commandName();
+    }
 }

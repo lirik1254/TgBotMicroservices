@@ -2,7 +2,10 @@ package backend.academy.scrapper.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Answers.RETURNS_DEFAULTS;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import backend.academy.scrapper.clients.GitHubInfoClient;
 import backend.academy.scrapper.exceptions.RepositoryNotFoundException;
@@ -15,13 +18,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 public class GithubClientTests {
@@ -30,7 +34,16 @@ public class GithubClientTests {
     @Autowired
     GitHubInfoClient gitHubInfoClient;
 
-    private String link = "http://localhost:8080/repos/lirik1254/abTestRepo";
+    @MockitoBean
+    ConvertLinkToApiUtils convertLinkToApiUtils =
+            Mockito.mock(ConvertLinkToApiUtils.class, withSettings().defaultAnswer(invocation -> {
+                if (invocation.getMethod().getName().equals("convertGithubLinkToApi")) {
+                    return link;
+                }
+                return RETURNS_DEFAULTS.answer(invocation);
+            }));
+
+    private static String link = "http://localhost:8080/repos/lirik1254/abTestRepo";
 
     @BeforeAll
     public static void setUp() {
@@ -42,6 +55,11 @@ public class GithubClientTests {
     @AfterAll
     public static void close() {
         wireMockServer.stop();
+    }
+
+    @BeforeEach
+    public void BeforeEachSetUp() {
+        when(convertLinkToApiUtils.convertGithubLinkToApi(anyString())).thenReturn(link);
     }
 
     @Test
@@ -59,11 +77,9 @@ public class GithubClientTests {
                         "updated_at" : "2025-02-24T12:45:01Z"
                     }""")));
 
-        try (MockedStatic<ConvertLinkToApiUtils> mocked = mockConvertLinkToApiUtils()) {
-            assertEquals(
-                    LocalDateTime.of(LocalDate.of(2025, 2, 24), LocalTime.of(12, 45, 1)),
-                    gitHubInfoClient.getLastUpdatedTime(link));
-        }
+        assertEquals(
+                LocalDateTime.of(LocalDate.of(2025, 2, 24), LocalTime.of(12, 45, 1)),
+                gitHubInfoClient.getLastUpdatedTime(link));
     }
 
     @Test
@@ -75,9 +91,7 @@ public class GithubClientTests {
                         .withStatus(400)
                         .withBody("""
                     incorrect json answer""")));
-        try (MockedStatic<ConvertLinkToApiUtils> mocked = mockConvertLinkToApiUtils()) {
-            assertThrows(RepositoryNotFoundException.class, () -> gitHubInfoClient.getLastUpdatedTime(link));
-        }
+        assertThrows(RepositoryNotFoundException.class, () -> gitHubInfoClient.getLastUpdatedTime(link));
     }
 
     @Test
@@ -90,16 +104,6 @@ public class GithubClientTests {
                         .withBody("""
                     incorrect json answer""")));
 
-        try (MockedStatic<ConvertLinkToApiUtils> mocked = mockConvertLinkToApiUtils()) {
-            assertThrows(HttpMessageNotReadableException.class, () -> gitHubInfoClient.getLastUpdatedTime(link));
-        }
-    }
-
-    private MockedStatic<ConvertLinkToApiUtils> mockConvertLinkToApiUtils() {
-        MockedStatic<ConvertLinkToApiUtils> mockedStatic = Mockito.mockStatic(ConvertLinkToApiUtils.class);
-        mockedStatic
-                .when(() -> ConvertLinkToApiUtils.convertGithubLinkToApi(anyString()))
-                .thenReturn(link);
-        return mockedStatic;
+        assertThrows(HttpMessageNotReadableException.class, () -> gitHubInfoClient.getLastUpdatedTime(link));
     }
 }

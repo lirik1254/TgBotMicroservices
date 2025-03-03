@@ -1,10 +1,12 @@
-package backend.academy.scrapper.exceptions;
+package backend.academy.scrapper;
 
-import static general.LogMessages.client400;
-import static general.LogMessages.client404;
-
+import backend.academy.scrapper.exceptions.ChatNotFoundException;
+import backend.academy.scrapper.exceptions.LinkNotFoundException;
+import backend.academy.scrapper.exceptions.QuestionNotFoundException;
+import backend.academy.scrapper.exceptions.RepositoryNotFoundException;
 import dto.ApiErrorResponseDTO;
 import general.ExceptionUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,7 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ScrapperExceptionHandler {
+    public static String CLIENT_400 = "400";
+    public static String CLIENT_404 = "404";
+    private final ExceptionUtils exceptionUtils;
 
     @ExceptionHandler({
         NumberFormatException.class,
@@ -23,10 +29,10 @@ public class ScrapperExceptionHandler {
     public ResponseEntity<ApiErrorResponseDTO> handleInvalid(Exception ex) {
         ApiErrorResponseDTO errorResponse = new ApiErrorResponseDTO(
                 "Некорректные параметры запроса",
-                client400,
+                CLIENT_400,
                 ex.getClass().getName(),
                 ex.getMessage(),
-                ExceptionUtils.getStacktrace(ex));
+                exceptionUtils.getStacktrace(ex));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -35,10 +41,10 @@ public class ScrapperExceptionHandler {
     public ResponseEntity<ApiErrorResponseDTO> handleQuestionNotFound(Exception ex) {
         ApiErrorResponseDTO errorResponse = new ApiErrorResponseDTO(
                 "Такого вопроса не существует",
-                client400,
+                CLIENT_400,
                 ex.getClass().getName(),
                 ex.getMessage(),
-                ExceptionUtils.getStacktrace(ex));
+                exceptionUtils.getStacktrace(ex));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -47,10 +53,10 @@ public class ScrapperExceptionHandler {
     public ResponseEntity<ApiErrorResponseDTO> handleRepositoryNotFound(Exception ex) {
         ApiErrorResponseDTO errorResponse = new ApiErrorResponseDTO(
                 "Такого репозитория не существует",
-                client400,
+                CLIENT_400,
                 ex.getClass().getName(),
                 ex.getMessage(),
-                ExceptionUtils.getStacktrace(ex));
+                exceptionUtils.getStacktrace(ex));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -59,10 +65,10 @@ public class ScrapperExceptionHandler {
     public ResponseEntity<ApiErrorResponseDTO> handleChatNotFound(ChatNotFoundException ex) {
         ApiErrorResponseDTO errorResponse = new ApiErrorResponseDTO(
                 "Чат не существует",
-                client404,
+                CLIENT_404,
                 ex.getClass().getName(),
                 ex.getMessage(),
-                ExceptionUtils.getStacktrace(ex));
+                exceptionUtils.getStacktrace(ex));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
@@ -71,10 +77,10 @@ public class ScrapperExceptionHandler {
     public ResponseEntity<ApiErrorResponseDTO> handleLinkNotFound(LinkNotFoundException ex) {
         ApiErrorResponseDTO errorResponse = new ApiErrorResponseDTO(
                 "Ссылка не найдена",
-                client404,
+                CLIENT_404,
                 ex.getClass().getName(),
                 ex.getMessage(),
-                ExceptionUtils.getStacktrace(ex));
+                exceptionUtils.getStacktrace(ex));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }

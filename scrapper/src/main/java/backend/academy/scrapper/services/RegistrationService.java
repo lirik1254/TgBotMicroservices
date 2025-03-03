@@ -13,17 +13,15 @@ public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
 
-    public String registerUser(Long chatId) {
-        if (registrationRepository.existById(chatId)) {
-            return "Вы уже зарегистрированы";
-        } else {
-            return registrationRepository.save(chatId);
+    public void registerUser(Long chatId) {
+        if (!registrationRepository.existById(chatId)) {
+            registrationRepository.save(chatId);
         }
     }
 
     public void deleteUser(Long userId) {
         if (!registrationRepository.existById(userId)) {
-            log.atInfo()
+            log.atError()
                     .addKeyValue("chatId", userId)
                     .setMessage("Не существует такого чата")
                     .log();

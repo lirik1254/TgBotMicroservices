@@ -7,12 +7,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import backend.academy.scrapper.DTO.Link;
+import backend.academy.scrapper.DTO.StackOverflowLink;
 import backend.academy.scrapper.repositories.LinkRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.RemoveLinkRequest;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,23 +48,10 @@ public class DeleteLinkTest {
         String stackOverflowlink = "https://stackoverflow.com/questions/34534534";
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest(stackOverflowlink);
 
-        Map<String, Integer> stackOverflowLinks = new HashMap<>();
-        stackOverflowLinks.put(stackOverflowlink, 52);
-        Map<Long, Map<String, Integer>> stackOverflowLinksMap = new HashMap<>();
-        stackOverflowLinksMap.put(123L, stackOverflowLinks);
-        ReflectionTestUtils.setField(linkRepository, "stackOverflowLinks", stackOverflowLinksMap);
-
-        Map<String, List<String>> tagsMap = new HashMap<>();
-        tagsMap.put(stackOverflowlink, tags);
-        Map<Long, Map<String, List<String>>> tagsRepository = new HashMap<>();
-        tagsRepository.put(123L, tagsMap);
-        ReflectionTestUtils.setField(linkRepository, "tags", tagsRepository);
-
-        Map<String, List<String>> filtersMap = new HashMap<>();
-        filtersMap.put(stackOverflowlink, filters);
-        Map<Long, Map<String, List<String>>> filtersRepository = new HashMap<>();
-        filtersRepository.put(123L, filtersMap);
-        ReflectionTestUtils.setField(linkRepository, "filters", filtersRepository);
+        ReflectionTestUtils.setField(
+                linkRepository,
+                "links",
+                new ArrayList<Link>(List.of(new StackOverflowLink(123L, stackOverflowlink, tags, filters, 52))));
 
         mockMvc.perform(delete("/links")
                         .header("Tg-Chat-Id", 123)
@@ -76,18 +64,13 @@ public class DeleteLinkTest {
                 .andExpect(jsonPath("$.tags", hasItems("tag1", "tag2")))
                 .andExpect(jsonPath("$.filters", hasItems("filter1")));
 
-        Assertions.assertFalse(
-                linkRepository.getAllStackOverflowLinks().get(123L).containsKey(stackOverflowlink));
-
-        Assertions.assertTrue(linkRepository.getAllTags().get(123L).isEmpty());
-
-        Assertions.assertTrue(linkRepository.getAllFilters().get(123L).isEmpty());
+        Assertions.assertTrue(linkRepository.links().isEmpty());
     }
 
     @Test
     @DisplayName("Удаление несуществующей ссылки")
     public void test2() throws Exception {
-        assertTrue(linkRepository.getAllStackOverflowLinks().isEmpty());
+        assertTrue(linkRepository.links().isEmpty());
 
         String stackOverflowlink = "https://stackoverflow.com/questions/34534534";
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest(stackOverflowlink);

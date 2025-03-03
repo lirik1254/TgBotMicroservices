@@ -1,7 +1,6 @@
 package backend.academy.scrapper.registration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,14 +32,7 @@ public class RegisterUserTests {
         mockMvc.perform(MockMvcRequestBuilders.post(
                                 "/tg-chat/52") // Добавляем 1 github ссылку для пользователя с id 123
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                        content()
-                                .string(
-                                        """
-        Приветствую в боте, ты успешно зарегистрирован!
-
-        Этот бот поможет тебе отслеживать контент.
-        Чтобы ознакомиться с функционалом бота, введи введи /help"""));
+                .andExpect(status().isOk());
 
         assertTrue(registrationRepository.existById(52L));
     }
@@ -53,7 +45,7 @@ public class RegisterUserTests {
         assertTrue(registrationRepository.existById(52L));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/tg-chat/52").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("Вы уже зарегистрированы"));
+                .andExpect(status().isOk());
     }
 
     @Test
