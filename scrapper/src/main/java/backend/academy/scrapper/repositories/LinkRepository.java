@@ -104,19 +104,4 @@ public class LinkRepository {
                 .toList();
     }
 
-    //    public Map<Long, Map<String, LocalDateTime>> getAllGithubLinks() {
-    //        return
-    //    }
-    //
-    //    public Map<Long, Map<String, Integer>> getAllStackOverflowLinks() {
-    //        return stackOverflowLinks;
-    //    }
-    //
-    //    public Map<Long, Map<String, List<String>>> getAllTags() {
-    //        return tags;
-    //    }
-    //
-    //    public Map<Long, Map<String, List<String>>> getAllFilters() {
-    //        return filters;
-    //    }
 }
